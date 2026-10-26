@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Numeri Relativi & Ascensore Matematica</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            user-select: none;
+        }
+
+        /* Personalizzazione Scrollbar della linea dei numeri */
+        .elevator-shaft::-webkit-scrollbar {
+            width: 8px;
+        }
+        .elevator-shaft::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        .elevator-shaft::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 4px;
+        }
+
+        /* Transizione fluida per l'ascensore */
+        .elevator-cabin {
+            transition: top 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* Griglia dello sfondo linea numeri */
+        .number-line-bg {
+            background-size: 100% 40px;
+            background-image: linear-gradient(to bottom, #e2e8f0 1px, transparent 1px);
+        }
+        
+        .pulse-glow {
+            animation: pulse-border 2s infinite;
+        }
+        
+        @keyframes pulse-border {
+            0%, 100% { box-shadow: 0 0 0 0px rgba(59, 130, 246, 0.5); }
+            50% { box-shadow: 0 0 0 6px rgba(59, 130, 246, 0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800 p-2 sm:p-4 md:p-6">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+
+        <!-- HEADER E TITOLO -->
+        <header class="bg-white rounded-2xl p-4 sm:p-6 shadow-md border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-600 text-white p-3 sm:p-4 rounded-2xl shadow-lg">
+                    <i class="fa-solid fa-[#fa-elevator] fa-building-circle-arrow-right text-2xl sm:text-3xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-extrabold text-slate-800">L'Ascensore dei Numeri Relativi</h1>
+                    <p class="text-xs sm:text-sm text-slate-500 font-medium">Visualizza e comprendi le operazioni con i numeri positivi e negativi</p>
+                </div>
+            </div>
+
+            <!-- MODALITÀ DI LAVORO -->
+            <div class="flex bg-slate-100 p-1 rounded-xl border border-slate-200 w-full md:w-auto">
+                <button id="mode-free-btn" onclick="switchMode('free')" class="flex-1 md:flex-none px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all bg-white text-indigo-600 shadow-sm">
+                    <i class="fa-solid fa-sliders mr-1"></i> Modalità Libera
+                </button>
+                <button id="mode-quiz-btn" onclick="switchMode('quiz')" class="flex-1 md:flex-none px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all text-slate-600 hover:text-slate-900">
+                    <i class="fa-solid fa-gamepad mr-1"></i> Modalità Esercizi
+                </button>
+            </div>
+        </header>
+
+        <!-- GRIGLIA PRINCIPALE -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- COLONNA SINISTRA: CONTROLLI E SCHEMA SEGNI (7 col su desktop) -->
+            <div class="lg:col-span-7 space-y-6">
+
+                <!-- 1. PANNELLO DI CALCOLO INTERATTIVO -->
+                <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-md border border-slate-200">
+                    <h2 class="text-base sm:text-lg font-bold text-slate-700 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-calculator text-indigo-500"></i> Imposta l'Addizione
+                    </h2>
+
+                    <!-- FORMER/INPUT OPERAZIONE -->
+                    <div id="calculator-inputs" class="flex flex-wrap items-center justify-center gap-2 sm:gap-4 bg-slate-50 p-4 sm:p-6 rounded-2xl border border-slate-200">
+                        
+                        <!-- Primo Numero A -->
+                        <div class="flex flex-col items-center">
+                            <label class="text-xs font-bold text-slate-500 mb-1 text-center">
+                                PARTENZA (A)<br>
+                                <span class="text-[10px] font-semibold text-indigo-600">(positivo o negativo)</span>
+                            </label>
+                            <div class="flex items-center bg-white rounded-xl border border-slate-300 shadow-sm p-1">
+                                <button onclick="adjustValue('numA', -1)" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold active:scale-95">-</button>
+                                <input type="number" id="numA" value="15" min="-100" max="100" placeholder="+ / -" onchange="validateAndCalculate()" class="w-16 text-center text-lg sm:text-xl font-bold bg-transparent outline-none">
+                                <button onclick="adjustValue('numA', 1)" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold active:scale-95">+</button>
+                            </div>
+                        </div>
+
+                        <!-- Operatore (+) Fisso -->
+                        <div class="flex flex-col items-center">
+                            <label class="text-xs font-bold text-slate-400 mb-1">OPERATORE</label>
+                            <div class="h-10 px-5 rounded-xl bg-indigo-100 text-indigo-700 font-extrabold text-xl sm:text-2xl border border-indigo-200 flex items-center justify-center shadow-sm select-none">
+                                +
+                            </div>
+                        </div>
+
+                        <!-- Secondo Numero B -->
+                        <div class="flex flex-col items-center">
+                            <label class="text-xs font-bold text-slate-500 mb-1 text-center">
+                                ADDENDO (B)<br>
+                                <span class="text-[10px] font-semibold text-indigo-600">(positivo o negativo)</span>
+                            </label>
+                            <div class="flex items-center bg-white rounded-xl border border-slate-300 shadow-sm p-1">
+                                <button onclick="adjustValue('numB', -1)" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold active:scale-95">-</button>
+                                <input type="number" id="numB" value="-25" min="-100" max="100" placeholder="+ / -" onchange="validateAndCalculate()" class="w-16 text-center text-lg sm:text-xl font-bold bg-transparent outline-none">
+                                <button onclick="adjustValue('numB', 1)" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold active:scale-95">+</button>
+                            </div>
+                        </div>
+
+                        <!-- Uguale -->
+                        <div class="text-2xl font-black text-slate-400 self-end pb-2">=</div>
+
+                        <!-- Risultato -->
+                        <div class="flex flex-col items-center">
+                            <label class="text-xs font-bold text-slate-400 mb-1">ARRIVO</label>
+                            <div id="result-display" class="h-10 min-w-[3.5rem] px-3 flex items-center justify-center rounded-xl bg-emerald-500 text-white text-xl sm:text-2xl font-black shadow-md">
+                                -10
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PULSANTE AZIONE -->
+                    <div class="mt-4 flex gap-3">
+                        <button onclick="startAnimation()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-indigo-200 flex items-center justify-center gap-2 transition-all">
+                            <i class="fa-solid fa-play"></i> Muovi l'Ascensore e Mostra il Percorso!
+                        </button>
+                    </div>
+
+                    <!-- QUIZ BOX (Visibile solo in modalità quiz) -->
+                    <div id="quiz-container" class="hidden mt-6 p-4 bg-amber-50 rounded-2xl border border-amber-200">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-extrabold uppercase tracking-wider text-amber-800 bg-amber-200 px-2.5 py-1 rounded-md">Sfida Matematica</span>
+                            <span id="quiz-score" class="text-xs font-bold text-amber-900">Punti: 0</span>
+                        </div>
+                        <p id="quiz-question" class="text-lg font-bold text-amber-950 text-center my-2">Calcola: (+20) + (-35) = ?</p>
+                        <div class="flex gap-2 justify-center mt-3">
+                            <input type="number" id="quiz-answer" placeholder="Risposta" class="w-28 text-center px-3 py-2 rounded-xl border border-amber-300 font-bold outline-none text-lg">
+                            <button onclick="checkQuizAnswer()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-4 py-2 rounded-xl shadow transition-colors">
+                                Verifica
+                            </button>
+                            <button onclick="generateQuiz()" class="bg-amber-200 hover:bg-amber-300 text-amber-800 font-bold px-3 py-2 rounded-xl transition-colors">
+                                <i class="fa-solid fa-rotate-right"></i>
+                            </button>
+                        </div>
+                        <p id="quiz-feedback" class="text-sm font-bold text-center mt-2 h-5"></p>
+                    </div>
+                </div>
+
+                <!-- NUOVO: LINEA DEI NUMERI ORIZZONTALE DINAMICA E RESETTABILE -->
+                <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-md border border-slate-200">
+                    <div class="flex items-center justify-between mb-3">
+                        <h2 class="text-base sm:text-lg font-bold text-slate-700 flex items-center gap-2">
+                            <i class="fa-solid fa-ruler-horizontal text-indigo-600"></i> Percorso Visivo sulla Linea dei Numeri
+                        </h2>
+                        <span id="zoom-range-badge" class="text-[11px] font-bold bg-indigo-50 text-indigo-700 px-2 py-1 rounded-md border border-indigo-200">
+                            Focale Calcolo
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-3">Rappresentazione orizzontale del salto dal piano di partenza a quello di arrivo:</p>
+                    
+                    <!-- SVG Canvas per la linea dei numeri -->
+                    <div class="w-full bg-slate-900 rounded-xl p-3 overflow-x-auto shadow-inner">
+                        <svg id="number-line-svg" class="w-full min-w-[500px] h-36" viewBox="0 0 700 130">
+                            <!-- Disegnato via JS -->
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 2. SPIEGAZIONE PASSO-PASSO DINAMICA -->
+                <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-md border border-slate-200">
+                    <h2 class="text-base sm:text-lg font-bold text-slate-700 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-route text-amber-500"></i> Come si muove l'ascensore?
+                    </h2>
+                    <div id="step-explanation" class="space-y-2 text-sm text-slate-600">
+                        <!-- Generato dinamicamente via JS -->
+                    </div>
+                </div>
+
+                <!-- 3. SCHEMA CAMBIAMENTO DEI SEGNI PER L'ADDIZIONE -->
+                <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-md border border-slate-200">
+                    <h2 class="text-base sm:text-lg font-bold text-slate-700 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-book-bookmark text-emerald-500"></i> Movimento dell'Ascensore
+                    </h2>
+                    <p class="text-xs text-slate-500 mb-4">Aggiungere un numero relativo determina la direzione del movimento dell'ascensore:</p>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- + (+x) -->
+                        <div id="rule-pp" class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col items-center transition-all">
+                            <div class="text-lg font-extrabold text-slate-700">+ ( + x )</div>
+                            <div class="text-2xl font-black text-emerald-600 my-1">➜ SALI (+)</div>
+                            <div class="text-xs text-slate-500 font-medium text-center">Sommare un numero positivo fa <strong>Salire</strong> l'ascensore verso l'alto <i class="fa-solid fa-arrow-up text-emerald-500"></i></div>
+                        </div>
+
+                        <!-- + (-x) -->
+                        <div id="rule-pm" class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col items-center transition-all">
+                            <div class="text-lg font-extrabold text-slate-700">+ ( - x )</div>
+                            <div class="text-2xl font-black text-rose-600 my-1">➜ SCENDI (-)</div>
+                            <div class="text-xs text-slate-500 font-medium text-center">Sommare un numero negativo fa <strong>Scendere</strong> l'ascensore verso il basso <i class="fa-solid fa-arrow-down text-rose-500"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. SPECCHIETTO SEGNO DEL RISULTATO (CONCORDI E DISCORDI) -->
+                <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-md border border-slate-200">
+                    <h2 class="text-base sm:text-lg font-bold text-slate-700 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-scale-balanced text-indigo-500"></i> Quale segno avrà il risultato?
+                    </h2>
+                    <p class="text-xs text-slate-500 mb-4">Regola del segno finale in base ai segni dei due addendi:</p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <!-- Entrambi Positivi (Concordi) -->
+                        <div id="sign-rule-pos" class="p-3 rounded-xl border border-slate-200 bg-slate-50 flex flex-col items-center transition-all">
+                            <span class="text-[10px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded mb-1">Concordi +</span>
+                            <div class="text-sm font-bold text-slate-700">( + ) + ( + )</div>
+                            <div class="text-lg font-black text-emerald-600 my-1">Risultato POSITIVO (+)</div>
+                            <div class="text-[11px] text-slate-500 text-center">Due numeri positivi danno sempre un numero positivo.</div>
+                        </div>
+
+                        <!-- Entrambi Negativi (Concordi) -->
+                        <div id="sign-rule-neg" class="p-3 rounded-xl border border-slate-200 bg-slate-50 flex flex-col items-center transition-all">
+                            <span class="text-[10px] font-black uppercase tracking-wider text-rose-700 bg-rose-100 px-2 py-0.5 rounded mb-1">Concordi -</span>
+                            <div class="text-sm font-bold text-slate-700">( - ) + ( - )</div>
+                            <div class="text-lg font-black text-rose-600 my-1">Risultato NEGATIVO (-)</div>
+                            <div class="text-[11px] text-slate-500 text-center">Due numeri negativi danno sempre un numero negativo.</div>
+                        </div>
+
+                        <!-- Segni Discordi -->
+                        <div id="sign-rule-disc" class="p-3 rounded-xl border border-slate-200 bg-slate-50 flex flex-col items-center transition-all">
+                            <span class="text-[10px] font-black uppercase tracking-wider text-amber-700 bg-amber-100 px-2 py-0.5 rounded mb-1">Discordi</span>
+                            <div class="text-sm font-bold text-slate-700">( + ) + ( - ) / ( - ) + ( + )</div>
+                            <div class="text-lg font-black text-amber-600 my-1">Vince il più grande!</div>
+                            <div class="text-[11px] text-slate-500 text-center">Il segno è quello del numero più lontano dallo zero (valore assoluto maggiore).</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- COLONNA DESTRA: VISUALIZZAZIONE ASCENSORE VERTICALE (5 col su desktop) -->
+            <div class="lg:col-span-5 bg-white rounded-2xl p-4 sm:p-6 shadow-md border border-slate-200 flex flex-col items-center">
+                
+                <div class="w-full flex justify-between items-center mb-4">
+                    <h2 class="text-base sm:text-lg font-bold text-slate-700 flex items-center gap-2">
+                        <i class="fa-solid fa-arrows-up-down text-indigo-500"></i> Torre dell'Ascensore (-100 a +100)
+                    </h2>
+                    <div class="flex items-center gap-2 text-xs font-bold">
+                        <span class="flex items-center gap-1 text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-200"><i class="fa-solid fa-arrow-up"></i> + Sali</span>
+                        <span class="flex items-center gap-1 text-rose-600 bg-rose-50 px-2 py-1 rounded-md border border-rose-200"><i class="fa-solid fa-arrow-down"></i> - Scendi</span>
+                    </div>
+                </div>
+
+                <!-- CONTENITORE VANO ASCENSORE (SCROLLABILE / ALTEZZA FISSA) -->
+                <div class="relative w-full max-w-sm h-[580px] bg-slate-900 rounded-2xl p-2 flex overflow-hidden shadow-inner border-4 border-slate-700">
+                    
+                    <!-- MARGINE SINISTRO: PIANI / NUMERI (201 PIANI totali da +100 a -100) -->
+                    <div id="floors-container" class="w-20 h-[8040px] relative flex flex-col justify-between text-xs font-bold text-slate-400 select-none pr-2 border-r border-slate-700">
+                        <!-- Generato dinamicamente da JS: da +100 a -100 -->
+                    </div>
+
+                    <!-- VANO CENTRALE CON GRIGLIA E CABINA -->
+                    <div id="shaft-container" class="relative flex-1 h-[8040px] number-line-bg">
+                        
+                        <!-- LINEA DELLO ZERO (TERRA) -->
+                        <div id="zero-line" class="absolute w-full border-b-2 border-amber-400 z-10 flex items-center justify-end pr-2">
+                            <span class="bg-amber-400 text-slate-950 text-[10px] font-black px-1.5 py-0.5 rounded shadow">PIANO TERRA (0)</span>
+                        </div>
+
+                        <!-- CABINA ASCENSORE -->
+                        <div id="elevator-cabin" class="elevator-cabin absolute left-2 right-2 h-9 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white rounded-lg shadow-xl border-2 border-indigo-300 flex items-center justify-between px-3 z-20">
+                            <div class="flex items-center gap-1">
+                                <i class="fa-solid fa-user text-xs text-indigo-200"></i>
+                                <span id="cabin-floor-display" class="font-extrabold text-sm text-yellow-300">+15</span>
+                            </div>
+                            <div id="cabin-direction-icon" class="text-xs">
+                                <i class="fa-solid fa-minus"></i>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- CONTROLLI VELOCI DI SCROLL E RIPRISTINO VISUALE -->
+                <div class="w-full flex justify-between items-center mt-3 text-xs text-slate-500">
+                    <button onclick="scrollToFloor(100)" class="hover:text-indigo-600 font-semibold"><i class="fa-solid fa-arrow-up"></i> Cima (+100)</button>
+                    <button onclick="scrollToFloor(0)" class="hover:text-amber-600 font-bold bg-slate-100 px-2 py-1 rounded border border-slate-200"><i class="fa-solid fa-bullseye"></i> Zero (0)</button>
+                    <button onclick="scrollToFloor(-100)" class="hover:text-indigo-600 font-semibold"><i class="fa-solid fa-arrow-down"></i> Fondo (-100)</button>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // Costanti e Variabili di Stato estese a ±100
+        const MIN_FLOOR = -100;
+        const MAX_FLOOR = 100;
+        const FLOOR_HEIGHT = 40; // Pixel per ciascun piano
+        
+        let currentMode = 'free'; // 'free' | 'quiz'
+        let currentNumA = 15;
+        let currentNumB = -25;
+        let quizScore = 0;
+        let quizTargetResult = 0;
+
+        // Inizializzazione al caricamento della pagina
+        window.onload = function() {
+            renderFloors();
+            updateAllCalculations();
+            // Centra l'ascensore dopo il caricamento iniziale
+            setTimeout(() => {
+                scrollToFloor(currentNumA);
+            }, 300);
+        };
+
+        // Genera visivamente la colonna dei 201 piani (da +100 a -100)
+        function renderFloors() {
+            const container = document.getElementById('floors-container');
+            const zeroLine = document.getElementById('zero-line');
+            container.innerHTML = '';
+
+            for (let f = MAX_FLOOR; f >= MIN_FLOOR; f--) {
+                const floorEl = document.createElement('div');
+                floorEl.style.height = `${FLOOR_HEIGHT}px`;
+                floorEl.className = `flex items-center justify-end pr-2 border-b border-slate-800/40 ${
+                    f === 0 ? 'text-amber-400 font-black text-sm' : f > 0 ? 'text-emerald-400 font-semibold' : 'text-rose-400 font-semibold'
+                }`;
+                
+                const sign = f > 0 ? '+' : '';
+                floorEl.innerText = `${sign}${f}`;
+                floorEl.setAttribute('id', `floor-label-${f}`);
+                container.appendChild(floorEl);
+            }
+
+            // Posiziona la linea gialla dello zero
+            const zeroOffset = (MAX_FLOOR) * FLOOR_HEIGHT;
+            zeroLine.style.top = `${zeroOffset}px`;
+            zeroLine.style.height = `${FLOOR_HEIGHT}px`;
+        }
+
+        // Calcola la posizione top in pixel per l'ascensore dato il piano
+        function getTopPixelForFloor(floor) {
+            const index = MAX_FLOOR - floor;
+            return (index * FLOOR_HEIGHT) + 2; 
+        }
+
+        // Sposta visivamente la cabina dell'ascensore
+        function moveElevatorTo(floor, isAnimating = true) {
+            const cabin = document.getElementById('elevator-cabin');
+            const cabinDisplay = document.getElementById('cabin-floor-display');
+            
+            // Limita il piano tra MIN_FLOOR (-100) e MAX_FLOOR (+100)
+            const targetFloor = Math.max(MIN_FLOOR, Math.min(MAX_FLOOR, floor));
+            const topPx = getTopPixelForFloor(targetFloor);
+
+            if (!isAnimating) {
+                cabin.style.transition = 'none';
+            } else {
+                cabin.style.transition = 'top 1.2s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            }
+
+            cabin.style.top = `${topPx}px`;
+            cabinDisplay.innerText = (targetFloor > 0 ? '+' : '') + targetFloor;
+
+            // Scroll automatico per mantenere l'ascensore centrato
+            scrollToFloor(targetFloor);
+        }
+
+        // Auto-scroll fluido del vano verso il piano target
+        function scrollToFloor(floor) {
+            const shaft = document.getElementById('shaft-container').parentElement;
+            const topPx = getTopPixelForFloor(floor);
+            const containerHeight = shaft.clientHeight;
+            
+            const scrollTopTarget = topPx - (containerHeight / 2) + (FLOOR_HEIGHT / 2);
+            shaft.scrollTo({
+                top: scrollTopTarget,
+                behavior: 'smooth'
+            });
+        }
+
+        // Cambia incremento/decremento dai pulsanti +/- (fino a +-100)
+        function adjustValue(inputId, delta) {
+            const input = document.getElementById(inputId);
+            let val = parseInt(input.value) || 0;
+            val += delta;
+            val = Math.max(-100, Math.min(100, val));
+            input.value = val;
+            validateAndCalculate();
+        }
+
+        // Valida e aggiorna i calcoli
+        function validateAndCalculate() {
+            currentNumA = parseInt(document.getElementById('numA').value);
+            currentNumB = parseInt(document.getElementById('numB').value);
+
+            if (isNaN(currentNumA)) currentNumA = 0;
+            if (isNaN(currentNumB)) currentNumB = 0;
+
+            currentNumA = Math.max(-100, Math.min(100, currentNumA));
+            currentNumB = Math.max(-100, Math.min(100, currentNumB));
+
+            updateAllCalculations();
+        }
+
+        // Aggiorna l'interfaccia, il risultato e la spiegazione
+        function updateAllCalculations() {
+            // Calcolo effettivo: solo addizione A + B
+            const finalResult = currentNumA + currentNumB;
+
+            // Aggiorna badge risultato
+            const resEl = document.getElementById('result-display');
+            resEl.innerText = (finalResult > 0 ? '+' : '') + finalResult;
+
+            if (finalResult > 100 || finalResult < -100) {
+                resEl.className = "h-10 min-w-[3.5rem] px-3 flex items-center justify-center rounded-xl bg-amber-500 text-white text-xl font-black shadow-md";
+                resEl.title = "Risultato fuori scala (oltre +-100)";
+            } else {
+                resEl.className = "h-10 min-w-[3.5rem] px-3 flex items-center justify-center rounded-xl bg-emerald-500 text-white text-xl font-black shadow-md";
+            }
+
+            // Evidenzia la regola dei segni del movimento e del risultato
+            highlightRule(currentNumB);
+            highlightSignResultRule(currentNumA, currentNumB);
+
+            // Genera la spiegazione testuale
+            generateExplanation(currentNumA, currentNumB, finalResult);
+
+            // Disegna la linea dei numeri dinamica orizzontale
+            renderHorizontalNumberLine(currentNumA, currentNumB, finalResult);
+
+            // Posiziona l'ascensore all'inizio (Piano A)
+            moveElevatorTo(currentNumA, false);
+        }
+
+        // Disegna la linea dei numeri orizzontale azzerata e centrata sul calcolo corrente
+        function renderHorizontalNumberLine(a, b, result) {
+            const svg = document.getElementById('number-line-svg');
+            svg.innerHTML = '';
+
+            // Calcolo range visivo intelligente focalizzato sui numeri del calcolo
+            const points = [0, a, result];
+            let minVal = Math.min(...points);
+            let maxVal = Math.max(...points);
+
+            // Margini attorno al calcolo
+            let padding = Math.max(3, Math.ceil(Math.abs(b) * 0.2));
+            minVal = Math.max(-100, minVal - padding);
+            maxVal = Math.min(100, maxVal + padding);
+
+            // Se l'intervallo è troppo stretto, allargalo per una visibilità ottimale
+            if (maxVal - minVal < 10) {
+                minVal = Math.max(-100, minVal - 3);
+                maxVal = Math.min(100, maxVal + 3);
+            }
+
+            const width = 700;
+            const startX = 50;
+            const endX = width - 50;
+            const lineY = 80;
+
+            const valToX = (v) => startX + ((v - minVal) / (maxVal - minVal)) * (endX - startX);
+
+            // Definizioni di frecce ed effetti nel grafico SVG
+            const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+            defs.innerHTML = `
+                <marker id="arrow-pos" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M 0 1 L 10 5 L 0 9 z" fill="#10b981"/>
+                </marker>
+                <marker id="arrow-neg" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M 0 1 L 10 5 L 0 9 z" fill="#f43f5e"/>
+                </marker>
+            `;
+            svg.appendChild(defs);
+
+            // Linea base principale
+            const mainLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            mainLine.setAttribute("x1", startX - 20);
+            mainLine.setAttribute("y1", lineY);
+            mainLine.setAttribute("x2", endX + 20);
+            mainLine.setAttribute("y2", lineY);
+            mainLine.setAttribute("stroke", "#475569");
+            mainLine.setAttribute("stroke-width", "4");
+            mainLine.setAttribute("stroke-linecap", "round");
+            svg.appendChild(mainLine);
+
+            // Tacche e numeri
+            const step = (maxVal - minVal > 40) ? 5 : (maxVal - minVal > 25) ? 2 : 1;
+
+            for (let v = Math.ceil(minVal); v <= Math.floor(maxVal); v++) {
+                if (v % step !== 0 && v !== 0 && v !== a && v !== result) continue;
+
+                const x = valToX(v);
+                const isMajor = (v === 0 || v === a || v === result);
+
+                // Tacca
+                const tick = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                tick.setAttribute("x1", x);
+                tick.setAttribute("y1", lineY - (isMajor ? 10 : 5));
+                tick.setAttribute("x2", x);
+                tick.setAttribute("y2", lineY + (isMajor ? 10 : 5));
+                tick.setAttribute("stroke", v === 0 ? "#f59e0b" : isMajor ? "#cbd5e1" : "#64748b");
+                tick.setAttribute("stroke-width", isMajor ? "3" : "1.5");
+                svg.appendChild(tick);
+
+                // Etichetta del numero
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute("x", x);
+                text.setAttribute("y", lineY + 26);
+                text.setAttribute("text-anchor", "middle");
+                text.setAttribute("font-size", isMajor ? "13" : "10");
+                text.setAttribute("font-weight", isMajor ? "bold" : "normal");
+                text.setAttribute("fill", v === 0 ? "#f59e0b" : v > 0 ? "#34d399" : "#f87171");
+                text.textContent = (v > 0 ? '+' : '') + v;
+                svg.appendChild(text);
+            }
+
+            // Evidenziatore dello ZERO se visibile
+            if (0 >= minVal && 0 <= maxVal) {
+                const zeroX = valToX(0);
+                const zeroCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                zeroCircle.setAttribute("cx", zeroX);
+                zeroCircle.setAttribute("cy", lineY);
+                zeroCircle.setAttribute("r", "4");
+                zeroCircle.setAttribute("fill", "#f59e0b");
+                svg.appendChild(zeroCircle);
+            }
+
+            // Arco / Spostamento dal primo numero (A) al risultato (A+B)
+            const xA = valToX(a);
+            const xRes = valToX(result);
+            const isGoingRight = b >= 0;
+
+            if (b !== 0) {
+                const arcPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                const heightOffset = Math.min(50, Math.max(25, Math.abs(xA - xRes) * 0.3));
+                const midX = (xA + xRes) / 2;
+                const controlY = lineY - heightOffset;
+
+                arcPath.setAttribute("d", `M ${xA} ${lineY - 8} Q ${midX} ${controlY} ${xRes} ${lineY - 8}`);
+                arcPath.setAttribute("fill", "none");
+                arcPath.setAttribute("stroke", isGoingRight ? "#10b981" : "#f43f5e");
+                arcPath.setAttribute("stroke-width", "3.5");
+                arcPath.setAttribute("stroke-dasharray", "6 3");
+                arcPath.setAttribute("marker-end", isGoingRight ? "url(#arrow-pos)" : "url(#arrow-neg)");
+                svg.appendChild(arcPath);
+
+                // Etichetta centrale dell'arco con la quantità del salto
+                const labelText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                labelText.setAttribute("x", midX);
+                labelText.setAttribute("y", controlY - 6);
+                labelText.setAttribute("text-anchor", "middle");
+                labelText.setAttribute("font-size", "12");
+                labelText.setAttribute("font-weight", "800");
+                labelText.setAttribute("fill", isGoingRight ? "#34d399" : "#f87171");
+                labelText.textContent = (b > 0 ? '+' : '') + b + (isGoingRight ? ' (Sali)' : ' (Scendi)');
+                svg.appendChild(labelText);
+            }
+
+            // Punto PARTENZA (A)
+            const circleA = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circleA.setAttribute("cx", xA);
+            circleA.setAttribute("cy", lineY);
+            circleA.setAttribute("r", "7");
+            circleA.setAttribute("fill", "#6366f1");
+            circleA.setAttribute("stroke", "#ffffff");
+            circleA.setAttribute("stroke-width", "2");
+            svg.appendChild(circleA);
+
+            // Punto ARRIVO (Risultato)
+            if (b !== 0) {
+                const circleRes = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                circleRes.setAttribute("cx", xRes);
+                circleRes.setAttribute("cy", lineY);
+                circleRes.setAttribute("r", "7");
+                circleRes.setAttribute("fill", "#10b981");
+                circleRes.setAttribute("stroke", "#ffffff");
+                circleRes.setAttribute("stroke-width", "2");
+                svg.appendChild(circleRes);
+            }
+
+            // Aggiorna il badge della scala visualizzata
+            document.getElementById('zoom-range-badge').innerText = `Visuale: da ${minVal > 0 ? '+' : ''}${minVal} a ${maxVal > 0 ? '+' : ''}${maxVal}`;
+        }
+
+        // Evidenzia visivamente lo schema della regola dei segni attiva
+        function highlightRule(numB) {
+            const rulePP = document.getElementById('rule-pp');
+            const rulePM = document.getElementById('rule-pm');
+
+            rulePP.className = "p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col items-center transition-all opacity-60";
+            rulePM.className = "p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col items-center transition-all opacity-60";
+
+            if (numB >= 0) {
+                rulePP.className = "p-4 rounded-xl border-2 border-indigo-500 bg-indigo-50/80 flex flex-col items-center transition-all opacity-100 scale-105 shadow-md pulse-glow";
+            } else {
+                rulePM.className = "p-4 rounded-xl border-2 border-indigo-500 bg-indigo-50/80 flex flex-col items-center transition-all opacity-100 scale-105 shadow-md pulse-glow";
+            }
+        }
+
+        // Evidenzia visivamente quale regola determina il segno finale
+        function highlightSignResultRule(a, b) {
+            const rulePos = document.getElementById('sign-rule-pos');
+            const ruleNeg = document.getElementById('sign-rule-neg');
+            const ruleDisc = document.getElementById('sign-rule-disc');
+
+            const baseStyle = "p-3 rounded-xl border border-slate-200 bg-slate-50 flex flex-col items-center transition-all opacity-50";
+            const activeStyle = "p-3 rounded-xl border-2 border-indigo-500 bg-indigo-50/90 flex flex-col items-center transition-all opacity-100 scale-105 shadow-md pulse-glow";
+
+            rulePos.className = baseStyle;
+            ruleNeg.className = baseStyle;
+            ruleDisc.className = baseStyle;
+
+            if (a >= 0 && b >= 0) {
+                rulePos.className = activeStyle;
+            } else if (a < 0 && b < 0) {
+                ruleNeg.className = activeStyle;
+            } else {
+                ruleDisc.className = activeStyle;
+            }
+        }
+
+        // Genera la spiegazione passo-passo
+        function generateExplanation(a, b, result) {
+            const expDiv = document.getElementById('step-explanation');
+            
+            const direction = b >= 0 ? 'SALIRE' : 'SCENDERE';
+            const dirIcon = b >= 0 ? '<i class="fa-solid fa-arrow-up text-emerald-600"></i>' : '<i class="fa-solid fa-arrow-down text-rose-600"></i>';
+            const steps = Math.abs(b);
+
+            const aSign = a >= 0 ? '+' : '';
+            const bSign = b >= 0 ? '+' : '';
+
+            expDiv.innerHTML = `
+                <div class="flex items-start gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                    <span class="bg-indigo-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shrink-0">1</span>
+                    <p>L'ascensore parte dal piano <strong>${aSign}${a}</strong>.</p>
+                </div>
+                <div class="flex items-start gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                    <span class="bg-indigo-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shrink-0">2</span>
+                    <p>Addizione impostata: <code>(${aSign}${a}) + (${bSign}${b})</code>.</p>
+                </div>
+                <div class="flex items-start gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                    <span class="bg-indigo-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shrink-0">3</span>
+                    <p>Poiché l'addendo è <strong>${bSign}${b}</strong>, l'ascensore deve <strong>${direction} ${dirIcon} di ${steps} piani</strong>.</p>
+                </div>
+                <div class="flex items-start gap-2 bg-emerald-50 p-2.5 rounded-lg border border-emerald-200 font-semibold text-emerald-900">
+                    <span class="bg-emerald-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shrink-0">4</span>
+                    <p>Arrivo finale: piano <strong>${result >= 0 ? '+' : ''}${result}</strong>!</p>
+                </div>
+            `;
+        }
+
+        // Avvia l'animazione dell'ascensore
+        function startAnimation() {
+            let targetResult = currentNumA + currentNumB;
+
+            // Prima posiziona istantaneamente all'inizio
+            moveElevatorTo(currentNumA, false);
+
+            const cabinIcon = document.getElementById('cabin-direction-icon');
+            if (currentNumB > 0) {
+                cabinIcon.innerHTML = '<i class="fa-solid fa-arrow-up text-emerald-300 animate-bounce"></i>';
+            } else if (currentNumB < 0) {
+                cabinIcon.innerHTML = '<i class="fa-solid fa-arrow-down text-rose-300 animate-bounce"></i>';
+            } else {
+                cabinIcon.innerHTML = '<i class="fa-solid fa-minus"></i>';
+            }
+
+            // Attiva la transizione
+            setTimeout(() => {
+                moveElevatorTo(targetResult, true);
+            }, 100);
+        }
+
+        // Gestione Modalità Libera vs Esercizio
+        function switchMode(mode) {
+            currentMode = mode;
+            const freeBtn = document.getElementById('mode-free-btn');
+            const quizBtn = document.getElementById('mode-quiz-btn');
+            const quizContainer = document.getElementById('quiz-container');
+
+            if (mode === 'quiz') {
+                quizBtn.className = "flex-1 md:flex-none px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all bg-white text-amber-600 shadow-sm";
+                freeBtn.className = "flex-1 md:flex-none px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all text-slate-600 hover:text-slate-900";
+                quizContainer.classList.remove('hidden');
+                generateQuiz();
+            } else {
+                freeBtn.className = "flex-1 md:flex-none px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all bg-white text-indigo-600 shadow-sm";
+                quizBtn.className = "flex-1 md:flex-none px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all text-slate-600 hover:text-slate-900";
+                quizContainer.classList.add('hidden');
+            }
+        }
+
+        // Generatore di addizioni casuali tra -50 e +50 per mantenere i risultati entro +-100
+        function generateQuiz() {
+            const randA = Math.floor(Math.random() * 101) - 50; // tra -50 e +50
+            const randB = Math.floor(Math.random() * 101) - 50;
+
+            currentNumA = randA;
+            currentNumB = randB;
+
+            document.getElementById('numA').value = randA;
+            document.getElementById('numB').value = randB;
+
+            quizTargetResult = randA + randB;
+
+            const signA = randA >= 0 ? '+' : '';
+            const signB = randB >= 0 ? '+' : '';
+            
+            document.getElementById('quiz-question').innerText = `Calcola: (${signA}${randA}) + (${signB}${randB}) = ?`;
+            document.getElementById('quiz-answer').value = '';
+            document.getElementById('quiz-feedback').innerText = '';
+
+            updateAllCalculations();
+        }
+
+        // Controllo della risposta del Quiz
+        function checkQuizAnswer() {
+            const userAns = parseInt(document.getElementById('quiz-answer').value);
+            const feedback = document.getElementById('quiz-feedback');
+
+            if (isNaN(userAns)) {
+                feedback.className = "text-sm font-bold text-center mt-2 text-amber-600";
+                feedback.innerText = "Inserisci un numero come risposta!";
+                return;
+            }
+
+            if (userAns === quizTargetResult) {
+                quizScore += 10;
+                feedback.className = "text-sm font-bold text-center mt-2 text-emerald-600 flex items-center justify-center gap-1";
+                feedback.innerHTML = '<i class="fa-solid fa-circle-check"></i> Esatto! Bravissimo! (+10 punti)';
+                document.getElementById('quiz-score').innerText = `Punti: ${quizScore}`;
+                startAnimation();
+            } else {
+                feedback.className = "text-sm font-bold text-center mt-2 text-rose-600 flex items-center justify-center gap-1";
+                feedback.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Non è corretto. L'ascensore ti mostra la strada!`;
+                startAnimation();
+            }
+        }
+    </script>
+</body>
+</html>
