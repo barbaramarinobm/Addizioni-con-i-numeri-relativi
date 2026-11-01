@@ -100,7 +100,7 @@
                             </label>
                             <div class="flex items-center bg-white rounded-xl border border-slate-300 shadow-sm p-1">
                                 <button onclick="adjustValue('numA', -1)" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold active:scale-95">-</button>
-                                <input type="number" id="numA" value="15" min="-100" max="100" placeholder="+ / -" onchange="validateAndCalculate()" class="w-16 text-center text-lg sm:text-xl font-bold bg-transparent outline-none">
+                                <input id="numA" value="15" min="-100" max="100" placeholder="+ / -" onchange="validateAndCalculate()" class="w-16 text-center text-lg sm:text-xl font-bold bg-transparent outline-none">
                                 <button onclick="adjustValue('numA', 1)" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold active:scale-95">+</button>
                             </div>
                         </div>
@@ -121,7 +121,7 @@
                             </label>
                             <div class="flex items-center bg-white rounded-xl border border-slate-300 shadow-sm p-1">
                                 <button onclick="adjustValue('numB', -1)" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold active:scale-95">-</button>
-                                <input type="number" id="numB" value="-25" min="-100" max="100" placeholder="+ / -" onchange="validateAndCalculate()" class="w-16 text-center text-lg sm:text-xl font-bold bg-transparent outline-none">
+                                <input id="numB" value="-25" min="-100" max="100" placeholder="+ / -" onchange="validateAndCalculate()" class="w-16 text-center text-lg sm:text-xl font-bold bg-transparent outline-none">
                                 <button onclick="adjustValue('numB', 1)" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold active:scale-95">+</button>
                             </div>
                         </div>
